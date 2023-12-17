@@ -3,4 +3,5 @@
     <string name="fp_login">Forgot your Password?</string>
     <string name="acc_exists">Already have an account?</string>
     <string name="to_login">Log In</string>
+    <string name="get_started_text">Get Started</string>
 </resources>
