@@ -1,25 +1,22 @@
 package com.ceej.expensetracker
 
+import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import com.ceej.expensetracker.databinding.ActivityMainBinding
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import com.ceej.expensetracker.databinding.IntroPageBinding
 
-class MainActivity : AppCompatActivity() {
+class IntroActivity : AppCompatActivity() {
 
-    private lateinit var mainActivity: ActivityMainBinding
+    private lateinit var introBinding : IntroPageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        mainActivity = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(mainActivity.root)
+        introBinding = IntroPageBinding.inflate(layoutInflater)
+        setContentView(introBinding.root)
 
-        uiImpl()
-    }
-
-    private fun uiImpl(){
         val decorView = window.decorView
 
         // Hide the navigation bar
@@ -35,6 +32,12 @@ class MainActivity : AppCompatActivity() {
         // On some devices, you might need to use SYSTEM_UI_FLAG_LOW_PROFILE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LOW_PROFILE
+        }
+
+        introBinding.buttonGetStarted.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 }

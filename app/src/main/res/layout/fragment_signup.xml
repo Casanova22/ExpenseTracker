@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/app_bg"
+        android:scaleType="fitXY"
+        />
+
+    <TextView
+        android:id="@+id/signUpText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/logInCont"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/varela_round"
+        android:text="@string/signupPage_text"
+        android:gravity="center"
+        android:textColor="#222222"
+        android:textSize="50sp" />
+
+    <LinearLayout
+        android:id="@+id/logInCont"
+        android:layout_width="wrap_content"
+        android:layout_height="330dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/login_bg"
+        android:elevation="4dp"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/etUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/varela_round"
+            android:hint="@string/userHint"
+            android:textColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+            />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/varela_round"
+            android:hint="@string/email"
+            android:textColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+            />
+
+        <EditText
+            android:id="@+id/etPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/varela_round"
+            android:hint="@string/pwHint"
+            android:textColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+            />
+
+        <EditText
+            android:id="@+id/confirmPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/varela_round"
+            android:hint="@string/confirm_password"
+            android:textColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            >
+            <include
+                layout="@layout/social_media_signup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/buttonConfirmSignup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logInCont"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/button_started"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/sign_up"
+            android:textSize="17sp"
+            android:textColor="@color/text_color_primary"
+            android:textStyle="bold"
+            android:fontFamily="@font/varela_round"
+            />
+
+    </RelativeLayout>
+</RelativeLayout>

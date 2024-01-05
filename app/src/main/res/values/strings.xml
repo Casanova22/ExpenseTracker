@@ -4,4 +4,19 @@
     <string name="acc_exists">Already have an account?</string>
     <string name="to_login">Log In</string>
     <string name="get_started_text">Get Started</string>
+    <string name="log_in">Log in</string>
+    <string name="pwHint">Password</string>
+    <string name="userHint">Username</string>
+    <string name="don_t_have_an_account_yet">Don\'t have an account yet?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="loginPage_text">Login your account</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="signupPage_text">Create Account</string>
+    <string name="background">background</string>
+    <string name="email">Email</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_logs">Logs</string>
+    <string name="tab_profile">Profile</string>
+    <string name="tab_goal">Goal</string>
+
 </resources>
