@@ -30,6 +30,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/facebook_icon"
+        android:elevation="5dp"
         android:layout_marginStart="130dp"
         android:layout_marginTop="25dp"
         />
@@ -42,6 +43,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="5dp"
         android:layout_marginEnd="130dp"
         android:layout_marginTop="25dp"
 

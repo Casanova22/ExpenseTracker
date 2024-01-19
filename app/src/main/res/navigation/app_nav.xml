@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/fragmenSignup"
-        android:name="com.ceej.expensetracker.FragmentSignUp"
+        android:name="com.ceej.expensetracker.signupmodule.FragmentSignUp"
         android:label="Signup Fragment"
         tools:layout="@layout/fragment_signup" >
 
@@ -30,7 +30,6 @@
             android:id="@+id/action_fragmenSignup_to_fragmentLogin"
             app:destination="@id/fragmentLogin" />
     </fragment>
-
 
     <fragment
         android:id="@+id/fragmentMain"

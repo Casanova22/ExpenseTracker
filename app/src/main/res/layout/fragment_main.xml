@@ -14,10 +14,9 @@
         android:layout_height="wrap_content"
         android:background="@drawable/btn_bg"
         app:abb_selectedTabType="text"
-        app:abb_textAppearance="@font/varela_round"
+        app:abb_textAppearance="@style/bottomBarText"
         app:abb_tabAnimation="slide"
         app:abb_tabs="@menu/tabs"
-
         app:abb_tabAnimationSelected="slide"
         app:abb_indicatorAppearance="round"
         app:abb_indicatorMargin="16dp"

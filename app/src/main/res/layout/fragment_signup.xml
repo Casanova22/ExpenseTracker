@@ -4,100 +4,157 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/app_bg"
         android:scaleType="fitXY"
-        />
+    />
 
     <TextView
         android:id="@+id/signUpText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/logInCont"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_centerInParent="true"
+        android:layout_alignTop="@id/logInCont"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="-73dp"
         android:layout_marginBottom="20dp"
         android:fontFamily="@font/varela_round"
-        android:text="@string/signupPage_text"
         android:gravity="center"
+        android:text="@string/signupPage_text"
         android:textColor="#222222"
-        android:textSize="50sp" />
+        android:textSize="50sp"
+    />
 
     <LinearLayout
         android:id="@+id/logInCont"
         android:layout_width="wrap_content"
-        android:layout_height="330dp"
+        android:layout_height="400dp"
         android:layout_centerInParent="true"
         android:background="@drawable/login_bg"
         android:elevation="4dp"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/etUserName"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/userNameCont"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="14dp"
             android:fontFamily="@font/varela_round"
-            android:hint="@string/userHint"
-            android:textColor="@color/text_color_primary"
+            android:importantForAutofill="no"
+            app:hintTextColor="@color/text_color_primary"
             android:textColorHint="@color/text_color_primary"
-            />
+>
 
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/varela_round"
-            android:hint="@string/email"
-            android:textColor="@color/text_color_primary"
-            android:textColorHint="@color/text_color_primary"
-            />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUserName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/userHint"
+                android:textColorHint="@color/text_color_primary"
+                app:hintTextColor="@color/text_color_primary"
+                android:inputType="text"
+                android:lines="1"
 
-        <EditText
-            android:id="@+id/etPass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/varela_round"
-            android:hint="@string/pwHint"
-            android:textColor="@color/text_color_primary"
-            android:textColorHint="@color/text_color_primary"
             />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/confirmPass"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailCont"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp"
             android:fontFamily="@font/varela_round"
-            android:hint="@string/confirm_password"
-            android:textColor="@color/text_color_primary"
+            android:importantForAutofill="no"
+            app:hintTextColor="@color/text_color_primary"
             android:textColorHint="@color/text_color_primary"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColorHint="@color/text_color_primary"
+                app:hintTextColor="@color/text_color_primary"
+                android:hint="@string/emailHint"
+                android:inputType="text"
+                android:lines="1"
             />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordCont"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="@font/varela_round"
+            android:importantForAutofill="no"
+            app:passwordToggleEnabled="true"
+            app:hintTextColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/pwHint"
+                android:textColorHint="@color/text_color_primary"
+                app:hintTextColor="@color/text_color_primary"
+                android:inputType="textPassword"
+                android:lines="1"
+            />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirmPassCont"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginHorizontal="10dp"
+            android:fontFamily="@font/varela_round"
+            android:importantForAutofill="no"
+            app:passwordToggleEnabled="true"
+            app:hintTextColor="@color/text_color_primary"
+            android:textColorHint="@color/text_color_primary"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etpassConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColorHint="@color/text_color_primary"
+                app:hintTextColor="@color/text_color_primary"
+                android:hint="@string/confirm_password"
+                android:inputType="text"
+                android:lines="1"
+            />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:gravity="center"
-            >
+            android:orientation="vertical">
+
             <include
                 layout="@layout/social_media_signup"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                />
-
+            />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
     </LinearLayout>
 
     <RelativeLayout
@@ -123,7 +180,6 @@
             android:textColor="@color/text_color_primary"
             android:textStyle="bold"
             android:fontFamily="@font/varela_round"
-            />
-
+        />
     </RelativeLayout>
 </RelativeLayout>

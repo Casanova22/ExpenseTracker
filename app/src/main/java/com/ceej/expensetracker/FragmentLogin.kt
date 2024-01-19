@@ -17,7 +17,7 @@ class FragmentLogin : Fragment(), View.OnClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _firstBinding = FragmentLoginBinding.inflate(inflater, container, false)
 
@@ -29,7 +29,6 @@ class FragmentLogin : Fragment(), View.OnClickListener {
         when(v){
             firstBinding.signUpBtn -> findNavController().navigate(R.id.action_fragmentLogin_to_fragmenSignup)
             firstBinding.logInBtn -> findNavController().navigate(R.id.action_fragmentLogin_to_fragmentMain)
-
         }
     }
 

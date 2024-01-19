@@ -10,6 +10,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainActivity: ActivityMainBinding
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -18,10 +19,8 @@ class MainActivity : AppCompatActivity() {
 
         uiImpl()
     }
-
     private fun uiImpl(){
         val decorView = window.decorView
-
         // Hide the navigation bar
         decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

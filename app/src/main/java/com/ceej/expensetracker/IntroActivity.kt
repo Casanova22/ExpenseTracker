@@ -11,7 +11,6 @@ import com.ceej.expensetracker.databinding.IntroPageBinding
 class IntroActivity : AppCompatActivity() {
 
     private lateinit var introBinding : IntroPageBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         introBinding = IntroPageBinding.inflate(layoutInflater)
@@ -35,8 +34,7 @@ class IntroActivity : AppCompatActivity() {
         }
 
         introBinding.buttonGetStarted.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this,MainActivity::class.java))
             finish()
         }
     }

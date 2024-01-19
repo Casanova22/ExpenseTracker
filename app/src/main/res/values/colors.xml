@@ -4,5 +4,13 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="text_color_primary">#EEF8F7</color>
-    <color name="text_color_secondary">#222222</color>
+    <color name="text_color_secondary">#62A8A3</color>
+
+    <color name="weak_password">#A00000</color>
+    <color name="medium_password">#FFBE0B</color>
+    <color name="strong_password">#63A91F</color>
+
+    <color name="holo_required">#FF0000</color>
+
+    <color name="bullet">#228B21</color>
 </resources>
