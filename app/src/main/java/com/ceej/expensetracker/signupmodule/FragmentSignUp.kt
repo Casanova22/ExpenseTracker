@@ -74,12 +74,15 @@ class FragmentSignUp : Fragment() {
     }
 
     private fun configureEditTexts(){
+
+        val requiredHint = getText(R.string.required)
+
         signUpBinding.etUserName.setOnFocusChangeListener { _,hasFocus ->
             if (hasFocus) {
                 signUpBinding.userNameCont.hint = getText(R.string.userHint)
                 signUpBinding.userNameCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
             } else {
-                signUpBinding.userNameCont.hint = getText(R.string.required)
+                signUpBinding.userNameCont.hint = requiredHint
                 signUpBinding.userNameCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
             }
         }
@@ -90,7 +93,7 @@ class FragmentSignUp : Fragment() {
                 signUpBinding.emailCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
             } else {
 
-                signUpBinding.emailCont.hint = getText(R.string.required)
+                signUpBinding.emailCont.hint = requiredHint
                 signUpBinding.emailCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
             }
         }
@@ -100,7 +103,7 @@ class FragmentSignUp : Fragment() {
                 signUpBinding.passwordCont.hint = getText(R.string.pwHint)
                 signUpBinding.passwordCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
             } else {
-                signUpBinding.passwordCont.hint = getText(R.string.required)
+                signUpBinding.passwordCont.hint = requiredHint
                 signUpBinding.passwordCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
             }
         }
@@ -110,7 +113,7 @@ class FragmentSignUp : Fragment() {
                 signUpBinding.confirmPassCont.hint = getText(R.string.confirm_password)
                 signUpBinding.confirmPassCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
             } else {
-                signUpBinding.confirmPassCont.hint = getText(R.string.required)
+                signUpBinding.confirmPassCont.hint = requiredHint
                 signUpBinding.confirmPassCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
             }
         }
