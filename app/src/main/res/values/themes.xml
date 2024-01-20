@@ -1,11 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ExpenseTracker" parent="Theme.AppCompat.DayNight">
+    <style name="Base.Theme.ExpenseTracker" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-
-
+        <item name="colorPrimary">#29756F</item>
+        <item name="colorPrimaryVariant">#55E1B8</item>
+        <item name="colorOnPrimary">#62A8A3</item>
+        <!-- Secondary brand color. -->
+        <!--<item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>-->
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="m">?attr/colorPrimaryVariant</item>
     </style>
 
-    <style name="Theme.ExpenseTracker" parent="Base.Theme.ExpenseTracker" />
+    <style
+        name="Theme.ExpenseTracker" parent="Base.Theme.ExpenseTracker"
+    />
 </resources>

@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "775782025727",
+    "firebase_url": "https://portfolioapps-3f2c1-default-rtdb.firebaseio.com",
+    "project_id": "portfolioapps-3f2c1",
+    "storage_bucket": "portfolioapps-3f2c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775782025727:android:45f43956f2176d65467fca",
+        "android_client_info": {
+          "package_name": "com.ceej.expensetracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO_gaO40rNTxD1NwM5Eb285JDzCv7u1qI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775782025727:android:91b31390ca9135de467fca",
+        "android_client_info": {
+          "package_name": "com.portfolio.basiccrud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO_gaO40rNTxD1NwM5Eb285JDzCv7u1qI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
