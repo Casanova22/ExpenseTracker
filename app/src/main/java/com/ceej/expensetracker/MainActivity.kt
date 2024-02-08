@@ -4,11 +4,13 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import com.ceej.expensetracker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainActivity: ActivityMainBinding
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,9 +19,7 @@ class MainActivity : AppCompatActivity() {
         mainActivity = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainActivity.root)
 
-        uiImpl()
-    }
-    private fun uiImpl(){
+
         val decorView = window.decorView
         // Hide the navigation bar
         decorView.systemUiVisibility = (
@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
                         or View.STATUS_BAR_VISIBLE
                         or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         or View.SYSTEM_UI_FLAG_IMMERSIVE)
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         // On some devices, you might need to use SYSTEM_UI_FLAG_LOW_PROFILE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

@@ -33,13 +33,14 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
+
 }
 
 dependencies {
     //B O T T O M  N A V I G A T I O N  L I B R A R Y
     implementation("nl.joery.animatedbottombar:library:1.1.0")
-
 
     //N A V I G A T I O N / F R A G M E N T
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")

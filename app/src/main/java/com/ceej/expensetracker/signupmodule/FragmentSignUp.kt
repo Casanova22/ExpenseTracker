@@ -1,31 +1,39 @@
 package com.ceej.expensetracker.signupmodule
 
 import android.content.Context.CONNECTIVITY_SERVICE
-import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.text.method.PasswordTransformationMethod
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.annotation.RequiresApi
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.Fragment
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
-import com.google.android.material.textfield.TextInputLayout
+import com.ceej.expensetracker.signupmodule.FieldValidators.isStringContainNumber
+import com.ceej.expensetracker.signupmodule.FieldValidators.isStringContainSpecialCharacter
+import com.ceej.expensetracker.signupmodule.FieldValidators.isStringLowerAndUpperCase
+import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
 import com.google.firebase.FirebaseApp
-import com.google.type.Color
-import kotlin.math.sign
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
 
 class FragmentSignUp : Fragment() {
 
+    private lateinit var auth: FirebaseAuth
+
     private var _signUpBinding : FragmentSignupBinding? = null
     private val signUpBinding get() = _signUpBinding!!
+
 
     private val isConnectionAvailable: Boolean
         get() {
@@ -50,71 +58,144 @@ class FragmentSignUp : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _signUpBinding = FragmentSignupBinding.inflate(inflater, container, false)
 
+        auth = Firebase.auth
 
         FirebaseApp.initializeApp(requireContext())
-        signUpImpl(savedInstanceState)
-        configureEditTexts()
+        setUpListeners()
         return signUpBinding.root
     }
-    private fun signUpImpl(savedInstanceState: Bundle?) {
-        val needConnection = resources.getBoolean(R.bool.forConnection)
-        val isConnected: Boolean = if (needConnection) {
-            isConnectionAvailable
-        } else {
-            true
-        }
-        if (isConnected) {
-            if (savedInstanceState === null){
 
-            }
-        }
+    private fun isValidate(): Boolean =
+        validateUserName() && validateEmail() && validatePassword() && validateConfirmPassword()
+
+    private fun setUpListeners () {
+
+        signUpBinding.etUserName.addTextChangedListener(TextFieldValidation(signUpBinding.etUserName))
+        signUpBinding.etEmail.addTextChangedListener(TextFieldValidation(signUpBinding.etEmail))
+        signUpBinding.etPassword.addTextChangedListener(TextFieldValidation(signUpBinding.etPassword))
+        signUpBinding.etpassConfirm.addTextChangedListener(TextFieldValidation(signUpBinding.etpassConfirm))
     }
 
-    private fun configureEditTexts(){
+    private fun validateUserName(): Boolean {
 
-        val requiredHint = getText(R.string.required)
+        if (signUpBinding.etUserName.text.toString().trim().isEmpty()) {
+            signUpBinding.userNameCont.error = "Required*"
+            signUpBinding.etUserName.requestFocus()
+            return false
+        } else {
+            signUpBinding.userNameCont.error = null
+        }
+        return true
 
-        signUpBinding.etUserName.setOnFocusChangeListener { _,hasFocus ->
-            if (hasFocus) {
-                signUpBinding.userNameCont.hint = getText(R.string.userHint)
-                signUpBinding.userNameCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
-            } else {
-                signUpBinding.userNameCont.hint = requiredHint
-                signUpBinding.userNameCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
-            }
+        /*if (signUpBinding.etUserName.text.toString().trim().isEmpty()) {
+            signUpBinding.userNameCont.error = null
+            signUpBinding.etUserName.requestFocus()
+        } else if (signUpBinding.etUserName.text.){}*/
+    }
+
+    private fun validateEmail(): Boolean {
+
+        if (signUpBinding.etEmail.text.toString().trim().isEmpty()) {
+            signUpBinding.emailCont.error = "Required*"
+            signUpBinding.etEmail.requestFocus()
+            return false
+        } else if (!isValidEmail(signUpBinding.etEmail.text.toString())) {
+            signUpBinding.emailCont.error = "Invalid email"
+            signUpBinding.etEmail.requestFocus()
+            return false
+        } else {
+            signUpBinding.emailCont.error = null
+        }
+        return true
+    }
+
+    private fun validatePassword(): Boolean {
+
+        val validatedColor = ContextCompat.getColor(requireContext(),R.color.strong_password)
+        val invalidatedColor = ContextCompat.getColor(requireContext(), R.color.black)
+
+        if (signUpBinding.etPassword.text.toString().trim().isEmpty()) {
+            signUpBinding.passwordCont.error = "Required*"
+            signUpBinding.etPassword.requestFocus()
+            return false
+        } else if (signUpBinding.etPassword.text?.length!! >= 8) {
+            signUpBinding.passwordCont.error = null
         }
 
-        signUpBinding.etEmail.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                signUpBinding.emailCont.hint = getText(R.string.emailHint)
-                signUpBinding.emailCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
-            } else {
 
-                signUpBinding.emailCont.hint = requiredHint
-                signUpBinding.emailCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
-            }
+        if (isStringLowerAndUpperCase(signUpBinding.etPassword.text.toString())) {
+            signUpBinding.pwValidator.passwordUppercase.setTextColor(validatedColor)
+            signUpBinding.etPassword.requestFocus()
+            return false
+
+        } else if (signUpBinding.etPassword.text.toString().isBlank()){
+            signUpBinding.pwValidator.passwordUppercase.setTextColor(invalidatedColor)
+            signUpBinding.etPassword.requestFocus()
+            return false
+        } else {
+            signUpBinding.pwValidator.passwordUppercase.setTextColor(Color.BLACK)
+
         }
 
-        signUpBinding.etPassword.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                signUpBinding.passwordCont.hint = getText(R.string.pwHint)
-                signUpBinding.passwordCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
-            } else {
-                signUpBinding.passwordCont.hint = requiredHint
-                signUpBinding.passwordCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
-            }
+        if (isStringContainSpecialCharacter(signUpBinding.etPassword.text.toString())) {
+            signUpBinding.pwValidator.passwordSpecial.setTextColor(validatedColor)
+            signUpBinding.etPassword.requestFocus()
+            return false
+        } else {
+            signUpBinding.pwValidator.passwordSpecial.setTextColor(invalidatedColor)
         }
 
-        signUpBinding.etpassConfirm.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                signUpBinding.confirmPassCont.hint = getText(R.string.confirm_password)
-                signUpBinding.confirmPassCont.hintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.text_color_primary)
-            } else {
-                signUpBinding.confirmPassCont.hint = requiredHint
-                signUpBinding.confirmPassCont.defaultHintTextColor = ContextCompat.getColorStateList(requireContext(), R.color.holo_required)
+        if (isStringContainNumber(signUpBinding.etPassword.text.toString())) {
+            signUpBinding.pwValidator.passwordNumerical.setTextColor(validatedColor)
+            signUpBinding.etPassword.requestFocus()
+            return false
+        } else {
+            signUpBinding.pwValidator.passwordNumerical.setTextColor(invalidatedColor)
+            signUpBinding.pwValidator.passwordNumerical.drawableState
+        }
+        return true
+    }
+
+    private fun validateConfirmPassword(): Boolean {
+
+        val color = ContextCompat.getColor(requireContext(),R.color.strong_password)
+
+        when {
+            signUpBinding.etpassConfirm.text.toString().trim().isEmpty() -> {
+                signUpBinding.confirmPassCont.error = "Required*"
+                signUpBinding.etpassConfirm.requestFocus()
+                return false
+            }
+            signUpBinding.etpassConfirm.text.toString() != signUpBinding.etPassword.text.toString() -> {
+                signUpBinding.confirmPassCont.error = "Passwords doesn't match"
+            }
+            else -> {
+                signUpBinding.confirmPassCont.error = "Passwords Match"
+            }
+        }
+        return true
+    }
+
+    inner class TextFieldValidation(private val view: View) : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+        }
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            when (view.id) {
+                R.id.etUserName -> {
+                    validateUserName()
+                }
+                R.id.etEmail -> {
+                    validateEmail()
+                }
+                R.id.etPassword -> {
+                    validatePassword()
+                }
+                R.id.etpassConfirm -> {
+                    validateConfirmPassword()
+                }
             }
         }
     }

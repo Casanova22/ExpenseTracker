@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ExpenseTracker" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">#29756F</item>
-        <item name="colorPrimaryVariant">#55E1B8</item>
+        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimaryVariant">#0055E1B8</item>
         <item name="colorOnPrimary">#62A8A3</item>
         <!-- Secondary brand color. -->
         <!--<item name="colorSecondary">@color/teal_200</item>
