@@ -17,11 +17,11 @@
             app:destination="@id/fragmentMain" />
         <action
             android:id="@+id/action_fragmentLogin_to_fragmenSignup"
-            app:destination="@id/fragmenSignup" />
+            app:destination="@id/fragmentSignup" />
     </fragment>
 
     <fragment
-        android:id="@+id/fragmenSignup"
+        android:id="@+id/fragmentSignup"
         android:name="com.ceej.expensetracker.signupmodule.FragmentSignUp"
         android:label="Signup Fragment"
         tools:layout="@layout/fragment_signup" >

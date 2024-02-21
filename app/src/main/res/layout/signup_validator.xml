@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
     <LinearLayout
         android:id="@+id/linearCounter"
         android:layout_width="match_parent"
@@ -12,6 +13,37 @@
         android:orientation="vertical"
         android:padding="5dp"
         android:gravity="center_horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/passwordLength"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:cardBackgroundColor="#dcdcdc"
+                android:layout_marginStart="10dp"
+                app:cardCornerRadius="25dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/baseline_check_circle_outline_24"
+                    />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Atleast 10 characters"
+                android:gravity="center|start"
+                android:layout_marginStart="10dp"
+                />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,8 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/baseline_check_circle_outline_24"
-                    />
-
+                />
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -74,7 +105,7 @@
                 android:text="Password should contain one numerical "
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
-                />
+            />
         </LinearLayout>
 
         <LinearLayout
@@ -96,8 +127,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/baseline_check_circle_outline_24"
-                    />
-
+                />
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -106,39 +136,7 @@
                 android:text="Password should contain one special character"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/passwordMatches"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                app:cardBackgroundColor="#dcdcdc"
-                android:layout_marginStart="10dp"
-                app:cardCornerRadius="25dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@drawable/baseline_check_circle_outline_24"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Password matches"
-                android:gravity="center|start"
-                android:layout_marginStart="10dp"
-                />
+            />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>
