@@ -19,7 +19,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:contentDescription="@string/background"
-            />
+        />
     </RelativeLayout>
 
     <RelativeLayout
@@ -44,6 +44,6 @@
             android:textColor="@color/text_color_primary"
             android:textStyle="bold"
             android:textSize="17sp"
-            />
+        />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

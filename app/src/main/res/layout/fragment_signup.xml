@@ -64,7 +64,8 @@
                 android:lines="1"
                 android:importantForAutofill="noExcludeDescendants"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary" />
+                app:hintTextColor="@color/text_color_secondary"
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -91,7 +92,8 @@
                 android:lines="1"
                 android:importantForAutofill="noExcludeDescendants"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary" />
+                app:hintTextColor="@color/text_color_secondary"
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -119,7 +121,8 @@
                 android:importantForAutofill="noExcludeDescendants"
                 android:lines="1"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary" />
+                app:hintTextColor="@color/text_color_secondary"
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -147,7 +150,8 @@
                 android:inputType="text"
                 android:lines="1"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary" />
+                app:hintTextColor="@color/text_color_secondary"
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -166,8 +170,8 @@
                 android:id="@+id/pwValidator"
                 layout="@layout/signup_validator"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
+                android:layout_height="match_parent"
+            />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
@@ -194,6 +198,6 @@
             android:textColor="@color/text_color_primary"
             android:textStyle="bold"
             android:fontFamily="@font/varela_round"
-            />
+        />
     </RelativeLayout>
 </RelativeLayout>

@@ -23,6 +23,6 @@
         app:abb_indicatorHeight="6dp"
         app:abb_selectedIndex="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+    />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,7 +28,8 @@
             android:textAlignment="center"
             android:textColor="@color/text_color_secondary"
             android:textSize="17sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+        />
 
         <ImageButton
             android:id="@+id/fbSignUp"
@@ -41,7 +42,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-             />
+        />
 
         <ImageButton
             android:id="@+id/googleSignUp"
@@ -55,6 +56,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
 
-            />
+        />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

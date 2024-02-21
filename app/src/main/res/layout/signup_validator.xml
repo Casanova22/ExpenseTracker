@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/baseline_check_circle_outline_24"
-                    />
+                />
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -42,7 +42,7 @@
                 android:text="Atleast 10 characters"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
-                />
+            />
         </LinearLayout>
 
         <LinearLayout
@@ -65,7 +65,6 @@
                     android:layout_gravity="center"
                     android:background="@drawable/baseline_check_circle_outline_24"
                 />
-
             </androidx.cardview.widget.CardView>
 
             <TextView

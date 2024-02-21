@@ -27,9 +27,8 @@
         android:text="@string/loginPage_text"
         android:gravity="center"
         android:textColor="@color/text_color_secondary"
-        android:textSize="50sp" />
-
-
+        android:textSize="50sp"
+    />
 
     <LinearLayout
         android:id="@+id/logInCont"
@@ -63,8 +62,6 @@
             android:textColor="@color/text_color_primary"
             android:textColorHint="@color/text_color_primary"
         />
-
-
     </LinearLayout>
 
     <Button
