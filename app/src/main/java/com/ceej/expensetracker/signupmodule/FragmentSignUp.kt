@@ -2,6 +2,7 @@ package com.ceej.expensetracker.signupmodule
 
 import android.animation.ValueAnimator
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +15,8 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -30,8 +33,10 @@ class FragmentSignUp : Fragment() {
 
     private var _signUpBinding : FragmentSignupBinding? = null
     private val signUpBinding get() = _signUpBinding!!
+    private var isKeyboardShowing = false
 
-    val db = FirebaseFirestore.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+
 
     /*private val isConnectionAvailable: Boolean
         get() {
@@ -61,9 +66,29 @@ class FragmentSignUp : Fragment() {
 
         //FirebaseApp.initializeApp(requireContext())
         setUpListeners()
+
+        val  rootView = signUpBinding.root
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            val isKeyboardNowShowing = keypadHeight > screenHeight * 0.15 // if more than 15% of the screen height, it's probably a keyboard
+
+            if (isKeyboardNowShowing != isKeyboardShowing) {
+                isKeyboardShowing = isKeyboardNowShowing
+
+                if (isKeyboardNowShowing) {
+                    // Keyboard is showing, adjust your layout
+                    rootView.translationY = -keypadHeight.toFloat()
+                } else {
+                    // Keyboard is hidden, reset your layout
+                    rootView.translationY = 0f
+                }
+            }
+        }
+
         return signUpBinding.root
-
-
     }
 
     private fun saveUserDataToFirestore(username: String, email:String, password:String) {
@@ -85,7 +110,6 @@ class FragmentSignUp : Fragment() {
     }
 
     private fun setUpListeners () {
-
 
         signUpBinding.etUserName.addTextChangedListener(TextFieldValidation(signUpBinding.etUserName))
         signUpBinding.etEmail.addTextChangedListener(TextFieldValidation(signUpBinding.etEmail))
@@ -199,7 +223,6 @@ class FragmentSignUp : Fragment() {
         val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
         val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
         val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
-
 
         return when {
 
