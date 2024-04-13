@@ -1,41 +1,28 @@
 package com.ceej.expensetracker.signupmodule
 
-import android.content.Context.CONNECTIVITY_SERVICE
+import android.animation.ValueAnimator
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract.CommonDataKinds.Email
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Patterns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AnimationUtils
+import android.view.animation.Interpolator
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.isDigitsOnly
-import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
-import com.ceej.expensetracker.signupmodule.FieldValidators.isStringContainNumber
-import com.ceej.expensetracker.signupmodule.FieldValidators.isStringContainSpecialCharacter
-import com.ceej.expensetracker.signupmodule.FieldValidators.isStringLowerAndUpperCase
 import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
-import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlin.math.sign
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FragmentSignUp : Fragment() {
 
@@ -44,6 +31,7 @@ class FragmentSignUp : Fragment() {
     private var _signUpBinding : FragmentSignupBinding? = null
     private val signUpBinding get() = _signUpBinding!!
 
+    val db = FirebaseFirestore.getInstance()
 
     /*private val isConnectionAvailable: Boolean
         get() {
@@ -74,25 +62,55 @@ class FragmentSignUp : Fragment() {
         //FirebaseApp.initializeApp(requireContext())
         setUpListeners()
         return signUpBinding.root
+
+
     }
 
+    private fun saveUserDataToFirestore(username: String, email:String, password:String) {
+        val user = hashMapOf(
+            "username" to username,
+            "email" to email,
+            "password" to password
+        )
+
+        db.collection("info")
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener{
+                Log.w(TAG, "Error")
+            }
+
+    }
 
     private fun setUpListeners () {
+
 
         signUpBinding.etUserName.addTextChangedListener(TextFieldValidation(signUpBinding.etUserName))
         signUpBinding.etEmail.addTextChangedListener(TextFieldValidation(signUpBinding.etEmail))
         signUpBinding.etPassword.addTextChangedListener(TextFieldValidation(signUpBinding.etPassword))
         signUpBinding.etpassConfirm.addTextChangedListener(TextFieldValidation(signUpBinding.etpassConfirm))
-    }
 
+        signUpBinding.buttonConfirmSignup.setOnClickListener {
+            val username = signUpBinding.etUserName.text.toString()
+            val email = signUpBinding.etEmail.text.toString()
+            val password = signUpBinding.etPassword.text.toString()
+
+            if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()){
+
+                saveUserDataToFirestore(username, email, password)
+            } else {
+                horizontalShake(signUpBinding.buttonConfirmSignup, 20f)
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private fun validateUserName(username : String): Boolean {
         val username = signUpBinding.etUserName.text.toString()
         val minLength = 8
         val maxLength = 10
-        val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
-        val uppercaseCharRegex = "[A-Z]".toRegex()
-        val numericRegex = "[0-9]".toRegex()
         val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
         val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
         val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
@@ -128,23 +146,6 @@ class FragmentSignUp : Fragment() {
                 false
             }
 
-            username.contains(specialCharRegex) -> {
-                signUpBinding.userNameCont.error = "Username Must not contain special character"
-                signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.errorIconDrawable = error
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                false
-            }
-
-            username.contains(numericRegex) -> {
-                signUpBinding.userNameCont.error = "Must contain one number"
-                signUpBinding.userNameCont.errorIconDrawable = check
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorStrong))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorStrong)
-                false
-            }
-
             else -> {
                 signUpBinding.userNameCont.error = "Valid username"
                 signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
@@ -155,8 +156,6 @@ class FragmentSignUp : Fragment() {
             }
         }
     }
-
-
 
     private fun validateEmail(): Boolean {
 
@@ -173,6 +172,7 @@ class FragmentSignUp : Fragment() {
             signUpBinding.emailCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
             signUpBinding.etEmail.requestFocus()
             return false
+
         } else if (!isValidEmail(signUpBinding.etEmail.text.toString())) {
             signUpBinding.emailCont.error = "Invalid email"
             signUpBinding.emailCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
@@ -181,6 +181,7 @@ class FragmentSignUp : Fragment() {
             signUpBinding.emailCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
             signUpBinding.etEmail.requestFocus()
             return false
+
         } else {
             signUpBinding.emailCont.error = "Valid email"
             signUpBinding.emailCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
@@ -237,32 +238,35 @@ class FragmentSignUp : Fragment() {
 
     private fun validatePasswordTextview() : Boolean {
         val password = signUpBinding.etPassword.text.toString()
-        val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
-        val uppercaseCharRegex = "[A-Z]".toRegex()
-        val numericRegex = "[0-9]".toRegex()
         val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
         val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
 
-        if (password.contains(uppercaseCharRegex)) {
-            signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-            return false
-        } else {
+        val uppercaseCharRegex = "[A-Z]".toRegex()
+        val numericRegex = "[0-9]".toRegex()
+        val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
+
+        // Check if password contains at least one uppercase letter
+        if (!password.contains(uppercaseCharRegex)) {
             signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
+            return false
         }
 
-        if (password.contains(numericRegex)) {
-            signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-            return false
-        } else {
+        // Check if password contains at least one numeric digit
+        if (!password.contains(numericRegex)) {
             signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
+            return false
         }
 
-        if (password.contains(specialCharRegex)) {
-            signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-            return false
-        } else {
+        // Check if password contains at least one special character
+        if (!password.contains(specialCharRegex)) {
             signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
+            return false
         }
+
+        // All conditions met
+        signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
+        signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
+        signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
         return true
     }
 
@@ -320,5 +324,41 @@ class FragmentSignUp : Fragment() {
                 }
             }
         }
+    }
+
+    private fun horizontalShake(
+        view: View,
+        offset: Float,
+        repeatCount: Int = 3,
+        dampingRatio: Float? = null,
+        duration: Long = 350L,
+        interpolator: Interpolator = AccelerateInterpolator()
+    ) {
+        val defaultDampingRatio = dampingRatio ?: (1f / (repeatCount + 1))
+        val animValues = mutableListOf<Float>()
+        repeat(repeatCount) { index ->
+            animValues.add(0f)
+            animValues.add(-offset * (1 - defaultDampingRatio * index))
+            animValues.add(0f)
+            animValues.add(offset * (1 - defaultDampingRatio * index))
+        }
+        animValues.add(0f)
+
+        val anim : ValueAnimator = ValueAnimator.ofFloat(*animValues.toFloatArray())
+        anim.addUpdateListener {
+            view.translationX = it.animatedValue as Float
+        }
+        anim.interpolator = interpolator
+        anim.duration = duration
+        anim.start()
+    }
+
+    companion object {
+        private const val TAG = "FragmentSignUp"
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _signUpBinding = null
     }
 }
