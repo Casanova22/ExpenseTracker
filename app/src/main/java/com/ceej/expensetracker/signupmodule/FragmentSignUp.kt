@@ -13,30 +13,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
-import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
-import android.widget.FrameLayout
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import com.ceej.expensetracker.FragmentLogin
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
 import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
+import com.ceej.expensetracker.viewmodel.SignInViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FragmentSignUp : Fragment() {
 
     //private lateinit var auth: FirebaseAuth
 
+    private lateinit var appViewModel : SignInViewModel
+
     private var _signUpBinding : FragmentSignupBinding? = null
     private val signUpBinding get() = _signUpBinding!!
     private var isKeyboardShowing = false
 
     private val db = FirebaseFirestore.getInstance()
-
 
     /*private val isConnectionAvailable: Boolean
         get() {
@@ -61,11 +66,9 @@ class FragmentSignUp : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _signUpBinding = FragmentSignupBinding.inflate(inflater, container, false)
-        //auth = Firebase.auth
 
-        //FirebaseApp.initializeApp(requireContext())
-        setUpListeners()
+        _signUpBinding = FragmentSignupBinding.inflate(inflater, container, false)
+        appViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
 
         val  rootView = signUpBinding.root
         rootView.viewTreeObserver.addOnGlobalLayoutListener {
@@ -86,27 +89,13 @@ class FragmentSignUp : Fragment() {
                     rootView.translationY = 0f
                 }
             }
+            setUpListeners()
         }
-
         return signUpBinding.root
     }
 
-    private fun saveUserDataToFirestore(username: String, email:String, password:String) {
-        val user = hashMapOf(
-            "username" to username,
-            "email" to email,
-            "password" to password
-        )
-
-        db.collection("info")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener{
-                Log.w(TAG, "Error")
-            }
-
+    private fun saveUserDataToFireStore(username: String, email:String, password:String) {
+        appViewModel.saveUserDataToFireStore(username, email, password)
     }
 
     private fun setUpListeners () {
@@ -117,21 +106,26 @@ class FragmentSignUp : Fragment() {
         signUpBinding.etpassConfirm.addTextChangedListener(TextFieldValidation(signUpBinding.etpassConfirm))
 
         signUpBinding.buttonConfirmSignup.setOnClickListener {
+
             val username = signUpBinding.etUserName.text.toString()
             val email = signUpBinding.etEmail.text.toString()
             val password = signUpBinding.etPassword.text.toString()
 
             if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()){
+                saveUserDataToFireStore(username, email, password)
+                onClick(view)
+                Toast.makeText(requireContext(), "Sign up successful", Toast.LENGTH_SHORT).show()
 
-                saveUserDataToFirestore(username, email, password)
             } else {
                 horizontalShake(signUpBinding.buttonConfirmSignup, 20f)
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
             }
+
+
         }
     }
 
-    private fun validateUserName(username : String): Boolean {
+    private fun validateUserName(): Boolean {
         val username = signUpBinding.etUserName.text.toString()
         val minLength = 8
         val maxLength = 10
@@ -225,7 +219,6 @@ class FragmentSignUp : Fragment() {
         val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
 
         return when {
-
             password.isEmpty() -> {
                 signUpBinding.passwordCont.error = "Required*"
                 signUpBinding.passwordCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
@@ -333,7 +326,7 @@ class FragmentSignUp : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             when (view.id) {
                 R.id.etUserName -> {
-                    validateUserName("")
+                    validateUserName()
                 }
                 R.id.etEmail -> {
                     validateEmail()
@@ -349,14 +342,8 @@ class FragmentSignUp : Fragment() {
         }
     }
 
-    private fun horizontalShake(
-        view: View,
-        offset: Float,
-        repeatCount: Int = 3,
-        dampingRatio: Float? = null,
-        duration: Long = 350L,
-        interpolator: Interpolator = AccelerateInterpolator()
-    ) {
+    private fun horizontalShake(view: View, offset: Float, repeatCount: Int = 3, dampingRatio: Float? = null, duration: Long = 350L, interpolator: Interpolator = AccelerateInterpolator()) {
+
         val defaultDampingRatio = dampingRatio ?: (1f / (repeatCount + 1))
         val animValues = mutableListOf<Float>()
         repeat(repeatCount) { index ->
@@ -383,5 +370,11 @@ class FragmentSignUp : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _signUpBinding = null
+    }
+    fun onClick(v: View?) {
+        when(v){
+
+            signUpBinding.buttonConfirmSignup -> findNavController().navigate(R.id.action_fragmentLogin_to_fragmentMain)
+        }
     }
 }
