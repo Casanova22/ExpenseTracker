@@ -21,4 +21,5 @@ class FragmentMain : Fragment() {
 
         return mainBinding.root
     }
+
 }
