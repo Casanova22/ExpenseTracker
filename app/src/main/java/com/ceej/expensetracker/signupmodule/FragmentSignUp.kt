@@ -1,39 +1,47 @@
 package com.ceej.expensetracker.signupmodule
 
 import android.animation.ValueAnimator
+import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
 import android.text.TextWatcher
-import android.util.Log
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Interpolator
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.ceej.expensetracker.FragmentLogin
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
 import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
 import com.ceej.expensetracker.viewmodel.SignInViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class FragmentSignUp : Fragment() {
+class FragmentSignUp : Fragment(), View.OnClickListener {
 
-    //private lateinit var auth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var appViewModel : SignInViewModel
 
@@ -89,8 +97,10 @@ class FragmentSignUp : Fragment() {
                     rootView.translationY = 0f
                 }
             }
-            setUpListeners()
         }
+        setUpListeners()
+        isConnectionAvailable()
+        setClickableText(signUpBinding.eulaPrivacy)
         return signUpBinding.root
     }
 
@@ -113,7 +123,7 @@ class FragmentSignUp : Fragment() {
 
             if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()){
                 saveUserDataToFireStore(username, email, password)
-                onClick(view)
+                onClickSignUp()
                 Toast.makeText(requireContext(), "Sign up successful", Toast.LENGTH_SHORT).show()
 
             } else {
@@ -261,25 +271,25 @@ class FragmentSignUp : Fragment() {
         val numericRegex = "[0-9]".toRegex()
         val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
 
-        // Check if password contains at least one uppercase letter
+        // --------------------Check if password contains at least one uppercase letter
         if (!password.contains(uppercaseCharRegex)) {
             signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
             return false
         }
 
-        // Check if password contains at least one numeric digit
+        //--------------------- Check if password contains at least one numeric digit
         if (!password.contains(numericRegex)) {
             signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
             return false
         }
 
-        // Check if password contains at least one special character
+        //---------------------Check if password contains at least one special character
         if (!password.contains(specialCharRegex)) {
             signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
             return false
         }
 
-        // All conditions met
+        //--------------------------------------All conditions met
         signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
         signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
         signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
@@ -325,20 +335,27 @@ class FragmentSignUp : Fragment() {
         }
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             when (view.id) {
-                R.id.etUserName -> {
-                    validateUserName()
-                }
-                R.id.etEmail -> {
-                    validateEmail()
-                }
-                R.id.etPassword -> {
-                    validatePasswordLength()
-                    validatePasswordTextview()
-                }
-                R.id.etpassConfirm -> {
-                    validateConfirmPassword()
-                }
+                R.id.etUserName -> { validateUserName() }
+                R.id.etEmail -> { validateEmail() }
+                R.id.etPassword -> { validatePasswordLength()
+                    validatePasswordTextview() }
+                R.id.etpassConfirm -> { validateConfirmPassword() }
             }
+        }
+    }
+
+    private fun isConnectionAvailable(): Boolean {
+        val cm = requireContext().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = cm.activeNetwork
+            val capabilities = cm.getNetworkCapabilities(network)
+            return capabilities != null &&
+                    (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = cm.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnectedOrConnecting
         }
     }
 
@@ -367,14 +384,73 @@ class FragmentSignUp : Fragment() {
         private const val TAG = "FragmentSignUp"
     }
 
+    private fun setClickableText(textView: TextView) {
+        val eulaText = getString(R.string.eula_privacy)
+        val spannableString = SpannableString(eulaText)
+
+        val eulaClickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = false
+                ds.color = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+            }
+        }
+
+        val privacyClickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+
+
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = false
+                ds.color = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+            }
+        }
+
+        val eulaStart = eulaText.indexOf("EULA")
+        val eulaEnd = eulaStart + "EULA".length
+
+        val privacyStart = eulaText.indexOf("Privacy Policy")
+        val privacyEnd = privacyStart + "Privacy Policy".length
+
+        spannableString.setSpan(eulaClickableSpan, eulaStart, eulaEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannableString.setSpan(privacyClickableSpan, privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        textView.text = spannableString
+        textView.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private fun openWebView(webView: WebView, url: String) {
+        webView.apply {
+            settings.javaScriptEnabled = true
+            webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                    view.loadUrl(url)
+                    return true
+                }
+            }
+            loadUrl(url)
+        }
+    }
+
+    private fun onClickSignUp(){
+        signUpBinding.buttonConfirmSignup.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        when(v){
+            signUpBinding.buttonConfirmSignup -> findNavController().navigate(R.id.action_fragmentSignup_to_fragmentLogin)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _signUpBinding = null
-    }
-    fun onClick(v: View?) {
-        when(v){
-
-            signUpBinding.buttonConfirmSignup -> findNavController().navigate(R.id.action_fragmentLogin_to_fragmentMain)
-        }
     }
 }

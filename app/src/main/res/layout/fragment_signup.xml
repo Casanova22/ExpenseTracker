@@ -4,38 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/app_bg"
-        />
-
-    <TextView
-        android:id="@+id/signUpText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/signUpCont"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="-73dp"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="@font/varela_round"
-        android:gravity="center"
-        android:text="@string/signupPage_text"
-        android:textColor="#222222"
-        android:textSize="50sp"
-        />
+    android:background="@drawable/app_bg">
 
     <LinearLayout
         android:id="@+id/signUpCont"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="60dp"
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -60,12 +36,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="@string/userHint"
+                android:fontFamily="@font/varela_round"
+                android:importantForAutofill="noExcludeDescendants"
                 android:inputType="textPersonName"
                 android:lines="1"
-                android:importantForAutofill="noExcludeDescendants"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary"
-            />
+                app:hintTextColor="@color/text_color_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -87,13 +63,13 @@
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/varela_round"
                 android:hint="@string/emailHint"
+                android:importantForAutofill="noExcludeDescendants"
                 android:inputType="textEmailAddress"
                 android:lines="1"
-                android:importantForAutofill="noExcludeDescendants"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary"
-            />
+                app:hintTextColor="@color/text_color_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -116,13 +92,13 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/varela_round"
                 android:hint="@string/pwHint"
-                android:inputType="text"
                 android:importantForAutofill="noExcludeDescendants"
+                android:inputType="text"
                 android:lines="1"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary"
-            />
+                app:hintTextColor="@color/text_color_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -145,13 +121,13 @@
                 android:id="@+id/etpassConfirm"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:importantForAutofill="noExcludeDescendants"
+                android:fontFamily="@font/varela_round"
                 android:hint="@string/confirm_password"
+                android:importantForAutofill="noExcludeDescendants"
                 android:inputType="text"
                 android:lines="1"
                 android:textColorHint="@color/text_color_secondary"
-                app:hintTextColor="@color/text_color_secondary"
-            />
+                app:hintTextColor="@color/text_color_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -170,8 +146,7 @@
                 android:id="@+id/pwValidator"
                 layout="@layout/signup_validator"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-            />
+                android:layout_height="match_parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
@@ -185,6 +160,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
+
         android:layout_marginBottom="20dp"
         android:background="@drawable/button_started"
         android:orientation="vertical">
@@ -200,4 +176,28 @@
             android:fontFamily="@font/varela_round"
         />
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonConfirmSignup"
+        android:layout_marginHorizontal="30dp"
+        android:gravity="center_vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/eulaPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/varela_round"
+            android:gravity="center"
+            android:text="@string/eula_privacy"
+
+            android:autoLink="none"
+        />
+
+    </LinearLayout>
+
+
 </RelativeLayout>

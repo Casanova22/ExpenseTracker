@@ -27,7 +27,7 @@
         tools:layout="@layout/fragment_signup" >
 
         <action
-            android:id="@+id/action_fragmenSignup_to_fragmentLogin"
+            android:id="@+id/action_fragmentSignup_to_fragmentLogin"
             app:destination="@id/fragmentLogin" />
     </fragment>
 

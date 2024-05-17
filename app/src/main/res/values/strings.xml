@@ -12,7 +12,7 @@
 
     <string name="don_t_have_an_account_yet">Don\'t have an account yet?</string>
     <string name="sign_up">Sign Up</string>
-    <string name="loginPage_text">Login your account</string>
+    <string name="loginPage_text">Welcome to Expense Tracker</string>
 
     <string name="signupPage_text">Create Account</string>
     <string name="background">background</string>
@@ -35,4 +35,5 @@
     <string name="str_pass_text">Strong Password Strength</string>
 
     <string name="required">Required*</string>
+    <string name="eula_privacy">*By Signing up, You agree to our EULA and our Privacy Policy</string>
 </resources>

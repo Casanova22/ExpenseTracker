@@ -25,6 +25,15 @@ class FragmentLogin : Fragment(), View.OnClickListener {
         return (firstBinding.root)
     }
 
+
+
+
+
+
+
+
+
+
     override fun onClick(v: View?) {
         when(v){
             firstBinding.signUpBtn -> findNavController().navigate(R.id.action_fragmentLogin_to_fragmenSignup)

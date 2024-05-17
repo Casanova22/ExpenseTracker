@@ -40,6 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Atleast 10 characters"
+                android:fontFamily="@font/varela_round"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
             />
@@ -70,6 +71,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/varela_round"
                 android:text="Password should contain one uppercase"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
@@ -101,6 +103,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/varela_round"
                 android:text="Password should contain one numerical "
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
@@ -132,6 +135,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/varela_round"
                 android:text="Password should contain one special character"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
