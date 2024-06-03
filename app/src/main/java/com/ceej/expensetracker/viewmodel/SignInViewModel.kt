@@ -2,6 +2,8 @@ package com.ceej.expensetracker.viewmodel
 
 import android.provider.ContactsContract.CommonDataKinds.Email
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,6 +15,8 @@ import kotlinx.coroutines.tasks.await
 class SignInViewModel : ViewModel() {
 
     private val _db = FirebaseFirestore.getInstance()
+    private val _fireStoreResult = MutableLiveData<FireStoreResult>()
+    val fireStoreResult: LiveData<FireStoreResult> get() = _fireStoreResult
 
     sealed class FireStoreResult {
         data class Success(val documentId: String) : FireStoreResult()
@@ -31,20 +35,9 @@ class SignInViewModel : ViewModel() {
                 val documentReference = _db.collection("info").add(user).await()
                 val documentId = documentReference.id
 
-                handleFireStoreResult(FireStoreResult.Success(documentId))
-            } catch (e:Exception) {
-
-            }
-        }
-    }
-
-    private fun handleFireStoreResult(result: FireStoreResult) {
-        when(result) {
-            is FireStoreResult.Success -> {
-                Log.w(VIEWMODEL, "Success")
-            }
-            is FireStoreResult.Failure -> {
-                Log.e(VIEWMODEL, "Failed")
+                _fireStoreResult.postValue(FireStoreResult.Success(documentId))
+            } catch (e: Exception) {
+                _fireStoreResult.postValue(FireStoreResult.Failure(e.message ?: "Unknown error"))
             }
         }
     }
@@ -52,5 +45,4 @@ class SignInViewModel : ViewModel() {
     companion object {
         private const val VIEWMODEL = "ViewModel"
     }
-
 }

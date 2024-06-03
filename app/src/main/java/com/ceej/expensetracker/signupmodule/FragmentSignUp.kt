@@ -1,12 +1,8 @@
 package com.ceej.expensetracker.signupmodule
 
-import android.animation.ValueAnimator
-import android.content.Context.CONNECTIVITY_SERVICE
+import android.animation.ObjectAnimator
 import android.content.res.ColorStateList
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -19,54 +15,31 @@ import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.Interpolator
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
+import com.ceej.expensetracker.utils.isConnectionAvailable
 import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
 import com.ceej.expensetracker.viewmodel.SignInViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.material.textfield.TextInputLayout
 
-class FragmentSignUp : Fragment(), View.OnClickListener {
 
-    private lateinit var auth: FirebaseAuth
+class FragmentSignUp : Fragment() {
 
-    private lateinit var appViewModel : SignInViewModel
+    private lateinit var appViewModel: SignInViewModel
 
-    private var _signUpBinding : FragmentSignupBinding? = null
+    private var _signUpBinding: FragmentSignupBinding? = null
     private val signUpBinding get() = _signUpBinding!!
-    private var isKeyboardShowing = false
-
-    private val db = FirebaseFirestore.getInstance()
-
-    /*private val isConnectionAvailable: Boolean
-        get() {
-            val cm = requireContext().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val network = cm.activeNetwork
-                val capabilities = cm.getNetworkCapabilities(network)
-                return capabilities != null &&
-                        (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-            } else {
-                @Suppress("DEPRECATION")
-                val networkInfo = cm.activeNetworkInfo
-                return networkInfo != null && networkInfo.isConnectedOrConnecting
-            }
-        }*/
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     override fun onCreateView(
@@ -74,314 +47,184 @@ class FragmentSignUp : Fragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _signUpBinding = FragmentSignupBinding.inflate(inflater, container, false)
         appViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
 
-        val  rootView = signUpBinding.root
-        rootView.viewTreeObserver.addOnGlobalLayoutListener {
-            val rect = Rect()
-            rootView.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = rootView.height
-            val keypadHeight = screenHeight - rect.bottom
-            val isKeyboardNowShowing = keypadHeight > screenHeight * 0.15 // if more than 15% of the screen height, it's probably a keyboard
-
-            if (isKeyboardNowShowing != isKeyboardShowing) {
-                isKeyboardShowing = isKeyboardNowShowing
-
-                if (isKeyboardNowShowing) {
-                    // Keyboard is showing, adjust your layout
-                    rootView.translationY = -keypadHeight.toFloat()
-                } else {
-                    // Keyboard is hidden, reset your layout
-                    rootView.translationY = 0f
-                }
-            }
-        }
         setUpListeners()
-        isConnectionAvailable()
+        if (!requireContext().isConnectionAvailable()) {
+            Toast.makeText(requireContext(),
+                getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+        }
         setClickableText(signUpBinding.eulaPrivacy)
         return signUpBinding.root
     }
 
-    private fun saveUserDataToFireStore(username: String, email:String, password:String) {
-        appViewModel.saveUserDataToFireStore(username, email, password)
-    }
+    private fun saveUserDataToFireStore(username: String, email: String, password: String) {
+        appViewModel.saveUserDataToFireStore(
+            username,
+            email,
+            password
+        )
 
-    private fun setUpListeners () {
+        appViewModel.fireStoreResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is SignInViewModel.FireStoreResult.Success -> {
+                    val documentId = result.documentId
+                    Toast.makeText(requireContext(), "User data saved successfully!", Toast.LENGTH_SHORT).show()
+                }
+                is SignInViewModel.FireStoreResult.Failure -> {
 
-        signUpBinding.etUserName.addTextChangedListener(TextFieldValidation(signUpBinding.etUserName))
-        signUpBinding.etEmail.addTextChangedListener(TextFieldValidation(signUpBinding.etEmail))
-        signUpBinding.etPassword.addTextChangedListener(TextFieldValidation(signUpBinding.etPassword))
-        signUpBinding.etpassConfirm.addTextChangedListener(TextFieldValidation(signUpBinding.etpassConfirm))
-
-        signUpBinding.buttonConfirmSignup.setOnClickListener {
-
-            val username = signUpBinding.etUserName.text.toString()
-            val email = signUpBinding.etEmail.text.toString()
-            val password = signUpBinding.etPassword.text.toString()
-
-            if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()){
-                saveUserDataToFireStore(username, email, password)
-                onClickSignUp()
-                Toast.makeText(requireContext(), "Sign up successful", Toast.LENGTH_SHORT).show()
-
-            } else {
-                horizontalShake(signUpBinding.buttonConfirmSignup, 20f)
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
-            }
-
-
-        }
-    }
-
-    private fun validateUserName(): Boolean {
-        val username = signUpBinding.etUserName.text.toString()
-        val minLength = 8
-        val maxLength = 10
-        val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
-        val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
-        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
-        val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
-
-        return when {
-
-            username.isEmpty() -> {
-                signUpBinding.userNameCont.error = "Required*"
-                signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.errorIconDrawable = error
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                signUpBinding.etUserName.requestFocus()
-                false
-            }
-
-            username.length < minLength -> {
-                signUpBinding.userNameCont.error = "Invalid username length"
-                signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.errorIconDrawable = error
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                false
-            }
-
-            username.length > maxLength -> {
-                signUpBinding.userNameCont.error = "Maximum $maxLength characters"
-                signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.errorIconDrawable = error
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                false
-            }
-
-            else -> {
-                signUpBinding.userNameCont.error = "Valid username"
-                signUpBinding.userNameCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
-                signUpBinding.userNameCont.errorIconDrawable = check
-                signUpBinding.userNameCont.setErrorTextColor(ColorStateList.valueOf(colorStrong))
-                signUpBinding.userNameCont.boxStrokeErrorColor = ColorStateList.valueOf(colorStrong)
-                true
+                    val error = result.error
+                    Toast.makeText(requireContext(), "Firestore Error: $error", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
-    private fun validateEmail(): Boolean {
+    private fun setUpListeners() {
+        with(signUpBinding) {
+            etUserName.addTextChangedListener(TextFieldValidation(etUserName))
+            etEmail.addTextChangedListener(TextFieldValidation(etEmail))
+            etPassword.addTextChangedListener(TextFieldValidation(etPassword))
+            etpassConfirm.addTextChangedListener(TextFieldValidation(etpassConfirm))
 
-        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
-        val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
-        val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
-        val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
+            buttonConfirmSignup.setOnClickListener {
+                val username = etUserName.text.toString()
+                val email = etEmail.text.toString()
+                val password = etPassword.text.toString()
 
-        if (signUpBinding.etEmail.text.toString().trim().isEmpty()) {
-            signUpBinding.emailCont.error = "Required*"
-            signUpBinding.emailCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-            signUpBinding.emailCont.errorIconDrawable = error
-            signUpBinding.emailCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-            signUpBinding.emailCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-            signUpBinding.etEmail.requestFocus()
-            return false
-
-        } else if (!isValidEmail(signUpBinding.etEmail.text.toString())) {
-            signUpBinding.emailCont.error = "Invalid email"
-            signUpBinding.emailCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-            signUpBinding.emailCont.errorIconDrawable = error
-            signUpBinding.emailCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-            signUpBinding.emailCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-            signUpBinding.etEmail.requestFocus()
-            return false
-
-        } else {
-            signUpBinding.emailCont.error = "Valid email"
-            signUpBinding.emailCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
-            signUpBinding.emailCont.errorIconDrawable = check
-            signUpBinding.emailCont.setErrorTextColor(ColorStateList.valueOf(colorStrong))
-            signUpBinding.emailCont.boxStrokeErrorColor = ColorStateList.valueOf(colorStrong)
+                if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                    saveUserDataToFireStore(username, email, password)
+                    signUpBinding.buttonConfirmSignup.findNavController().navigate(R.id.action_fragmentSignup_to_fragmentLogin)
+                    Toast.makeText(requireContext(),
+                        getString(R.string.sign_up_successful), Toast.LENGTH_SHORT).show()
+                } else {
+                    horizontalShake(buttonConfirmSignup, 20F)
+                    Toast.makeText(requireContext(),
+                        getString(R.string.please_fill_all_fields), Toast.LENGTH_SHORT).show()
+                }
+            }
         }
-        return true
     }
+
+    private fun validateUserName(): Boolean = validateField(
+        signUpBinding.userNameCont,
+        signUpBinding.etUserName.text.toString(),
+        { it.length in 8..10 },
+        getString(R.string.invalid_username_length),
+        getString(R.string.valid_username)
+    )
+
+    private fun validateEmail(): Boolean = validateField(
+        signUpBinding.emailCont,
+        signUpBinding.etEmail.text.toString(),
+        ::isValidEmail,
+        getString(R.string.invalid_email),
+        getString(R.string.valid_email)
+    )
 
     private fun validatePasswordLength(): Boolean {
         val password = signUpBinding.etPassword.text.toString()
         val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
+        val colorError = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
         val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
         val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
-        val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
-        val error : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
+        val check: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
+        val error: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
 
-        return when {
-            password.isEmpty() -> {
-                signUpBinding.passwordCont.error = "Required*"
-                signUpBinding.passwordCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.passwordCont.errorIconDrawable = error
-                signUpBinding.passwordCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.passwordCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-
-                false
-            }
-
-            password.length <= 8 -> {
-                signUpBinding.passwordCont.error = "Password is weak"
-                signUpBinding.passwordCont.setErrorIconTintList(ColorStateList.valueOf(colorWeak))
-                signUpBinding.passwordCont.errorIconDrawable = error
-                signUpBinding.passwordCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.passwordCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
-                false
-            }
-
-            else -> {
-                password.length >= 10
-                signUpBinding.passwordCont.error = "Valid password length"
-                signUpBinding.passwordCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
-                signUpBinding.passwordCont.errorIconDrawable = check
-                signUpBinding.passwordCont.setErrorTextColor(ColorStateList.valueOf(colorStrong))
-                signUpBinding.passwordCont.boxStrokeErrorColor = ColorStateList.valueOf(colorStrong)
-                signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-                true
-            }
+        return if (password.isEmpty() || password.length <= 10) {
+            setErrorState(signUpBinding.passwordCont,
+                getString(R.string.password_is_weak), colorWeak, error)
+            signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
+            false
+        } else {
+            setValidState(signUpBinding.passwordCont,
+                getString(R.string.valid_password_length), colorError, check)
+            signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
+            true
         }
     }
 
-    private fun validatePasswordTextview() : Boolean {
+    private fun validatePasswordTextview(): Boolean {
         val password = signUpBinding.etPassword.text.toString()
         val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
         val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
+
 
         val uppercaseCharRegex = "[A-Z]".toRegex()
         val numericRegex = "[0-9]".toRegex()
         val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
 
-        // --------------------Check if password contains at least one uppercase letter
-        if (!password.contains(uppercaseCharRegex)) {
-            signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
-            return false
-        }
+        val isValid = password.contains(uppercaseCharRegex) &&
+                password.contains(numericRegex) &&
+                password.contains(specialCharRegex)
 
-        //--------------------- Check if password contains at least one numeric digit
-        if (!password.contains(numericRegex)) {
-            signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
-            return false
-        }
 
-        //---------------------Check if password contains at least one special character
-        if (!password.contains(specialCharRegex)) {
-            signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
-            return false
-        }
+        setValidationState(signUpBinding.pwValidator.passwordUppercase, password.contains(uppercaseCharRegex), colorStrong, colorNoState)
+        setValidationState(signUpBinding.pwValidator.passwordNumerical, password.contains(numericRegex), colorStrong, colorNoState)
+        setValidationState(signUpBinding.pwValidator.passwordSpecial, password.contains(specialCharRegex), colorStrong, colorNoState)
 
-        //--------------------------------------All conditions met
-        signUpBinding.pwValidator.passwordUppercase.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-        signUpBinding.pwValidator.passwordNumerical.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-        signUpBinding.pwValidator.passwordSpecial.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-        return true
+        return isValid
     }
 
-    private fun validateConfirmPassword(): Boolean {
+    private fun validateConfirmPassword(): Boolean = validateField(
+        signUpBinding.confirmPassCont,
+        signUpBinding.etpassConfirm.text.toString(),
+        { it == signUpBinding.etPassword.text.toString() },
+        getString(R.string.passwords_don_t_match),
+        getString(R.string.passwords_match)
+    )
+
+    private fun validateField(field: TextInputLayout, value: String, validator: (String) -> Boolean, errorMessage: String, validMessage: String): Boolean {
         val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
-        val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
-        val check : Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
+        val colorStrong = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+        val check: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
+        val error: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
 
-        when {
-
-            signUpBinding.etpassConfirm.text.toString().trim().isEmpty() -> {
-                signUpBinding.confirmPassCont.error = "Required*"
-                signUpBinding.confirmPassCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                signUpBinding.etpassConfirm.requestFocus()
-                return false
-            }
-
-            signUpBinding.etpassConfirm.text.toString() != signUpBinding.etPassword.text.toString() -> {
-                signUpBinding.confirmPassCont.error = "Passwords doesn't match"
-                signUpBinding.confirmPassCont.setErrorTextColor(ColorStateList.valueOf(colorWeak))
-                signUpBinding.confirmPassCont.boxStrokeErrorColor = ColorStateList.valueOf(colorWeak)
-                return false
-            }
-
-            else -> {
-                signUpBinding.confirmPassCont.error = "Passwords Match"
-                signUpBinding.confirmPassCont.errorIconDrawable = check
-                signUpBinding.confirmPassCont.setErrorIconTintList(ColorStateList.valueOf(colorStrong))
-                signUpBinding.confirmPassCont.setErrorTextColor(ColorStateList.valueOf(colorStrong))
-                signUpBinding.confirmPassCont.boxStrokeErrorColor = ColorStateList.valueOf(colorStrong)
-                signUpBinding.confirmPassCont.requestFocus()
-            }
+        return if (!validator(value)) {
+            setErrorState(field, errorMessage, colorWeak, error)
+            false
+        } else {
+            setValidState(field, validMessage, colorStrong, check)
+            true
         }
-        return true
+    }
+
+    private fun setErrorState(textInputLayout: TextInputLayout, errorMessage: String, color: Int, errorIcon: Drawable?) {
+        textInputLayout.error = errorMessage
+        textInputLayout.setErrorIconTintList(ColorStateList.valueOf(color))
+        textInputLayout.errorIconDrawable = errorIcon
+        textInputLayout.setErrorTextColor(ColorStateList.valueOf(color))
+        textInputLayout.boxStrokeErrorColor = ColorStateList.valueOf(color)
+        textInputLayout.requestFocus()
+    }
+
+    private fun setValidState(textInputLayout: TextInputLayout, validMessage: String, color: Int, checkIcon: Drawable?) {
+        textInputLayout.error = validMessage
+        textInputLayout.setErrorIconTintList(ColorStateList.valueOf(color))
+        textInputLayout.errorIconDrawable = checkIcon
+        textInputLayout.setErrorTextColor(ColorStateList.valueOf(color))
+        textInputLayout.boxStrokeErrorColor = ColorStateList.valueOf(color)
+    }
+
+    private fun setValidationState(view: CardView, isValid: Boolean, validColor: Int, noStateColor: Int) {
+        view.setCardBackgroundColor(ColorStateList.valueOf(if (isValid) validColor else noStateColor))
     }
 
     inner class TextFieldValidation(private val view: View) : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun afterTextChanged(s: Editable?) {
-        }
+        override fun afterTextChanged(s: Editable?) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             when (view.id) {
-                R.id.etUserName -> { validateUserName() }
-                R.id.etEmail -> { validateEmail() }
-                R.id.etPassword -> { validatePasswordLength()
-                    validatePasswordTextview() }
-                R.id.etpassConfirm -> { validateConfirmPassword() }
+                R.id.etUserName -> validateUserName()
+                R.id.etEmail -> validateEmail()
+                R.id.etPassword -> {
+                    validatePasswordLength()
+                    validatePasswordTextview()
+                }
+                R.id.etpassConfirm -> validateConfirmPassword()
             }
         }
-    }
-
-    private fun isConnectionAvailable(): Boolean {
-        val cm = requireContext().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = cm.activeNetwork
-            val capabilities = cm.getNetworkCapabilities(network)
-            return capabilities != null &&
-                    (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-        } else {
-            @Suppress("DEPRECATION")
-            val networkInfo = cm.activeNetworkInfo
-            return networkInfo != null && networkInfo.isConnectedOrConnecting
-        }
-    }
-
-    private fun horizontalShake(view: View, offset: Float, repeatCount: Int = 3, dampingRatio: Float? = null, duration: Long = 350L, interpolator: Interpolator = AccelerateInterpolator()) {
-
-        val defaultDampingRatio = dampingRatio ?: (1f / (repeatCount + 1))
-        val animValues = mutableListOf<Float>()
-        repeat(repeatCount) { index ->
-            animValues.add(0f)
-            animValues.add(-offset * (1 - defaultDampingRatio * index))
-            animValues.add(0f)
-            animValues.add(offset * (1 - defaultDampingRatio * index))
-        }
-        animValues.add(0f)
-
-        val anim : ValueAnimator = ValueAnimator.ofFloat(*animValues.toFloatArray())
-        anim.addUpdateListener {
-            view.translationX = it.animatedValue as Float
-        }
-        anim.interpolator = interpolator
-        anim.duration = duration
-        anim.start()
-    }
-
-    companion object {
-        private const val TAG = "FragmentSignUp"
     }
 
     private fun setClickableText(textView: TextView) {
@@ -390,7 +233,7 @@ class FragmentSignUp : Fragment(), View.OnClickListener {
 
         val eulaClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-
+                // EULA click logic
             }
 
             override fun updateDrawState(ds: TextPaint) {
@@ -402,8 +245,7 @@ class FragmentSignUp : Fragment(), View.OnClickListener {
 
         val privacyClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-
-
+                // Privacy Policy click logic
             }
 
             override fun updateDrawState(ds: TextPaint) {
@@ -413,11 +255,11 @@ class FragmentSignUp : Fragment(), View.OnClickListener {
             }
         }
 
-        val eulaStart = eulaText.indexOf("EULA")
-        val eulaEnd = eulaStart + "EULA".length
+        val eulaStart = eulaText.indexOf(getString(R.string.eula))
+        val eulaEnd = eulaStart + getString(R.string.eula).length
 
-        val privacyStart = eulaText.indexOf("Privacy Policy")
-        val privacyEnd = privacyStart + "Privacy Policy".length
+        val privacyStart = eulaText.indexOf(getString(R.string.privacy_policy))
+        val privacyEnd = privacyStart + getString(R.string.privacy_policy).length
 
         spannableString.setSpan(eulaClickableSpan, eulaStart, eulaEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannableString.setSpan(privacyClickableSpan, privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -439,18 +281,19 @@ class FragmentSignUp : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun onClickSignUp(){
-        signUpBinding.buttonConfirmSignup.setOnClickListener(this)
-    }
-
-    override fun onClick(v: View?) {
-        when(v){
-            signUpBinding.buttonConfirmSignup -> findNavController().navigate(R.id.action_fragmentSignup_to_fragmentLogin)
-        }
+    private fun horizontalShake(view: View, shakeDistance: Float) {
+        val animator = ObjectAnimator.ofFloat(view, "translationX", 0f, shakeDistance, -shakeDistance, 0f)
+        animator.duration = 300
+        animator.start()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        signUpBinding.buttonConfirmSignup.setOnClickListener(null)
         _signUpBinding = null
+    }
+
+    companion object {
+        private const val TAG = "FragmentSignUp"
     }
 }

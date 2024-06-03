@@ -36,4 +36,17 @@
 
     <string name="required">Required*</string>
     <string name="eula_privacy">*By Signing up, You agree to our EULA and our Privacy Policy</string>
+    <string name="sign_up_successful">Sign up successful</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="invalid_username_length">Invalid username length</string>
+    <string name="valid_username">Valid username</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="valid_email">Valid email</string>
+    <string name="password_is_weak">Password is weak</string>
+    <string name="valid_password_length">Valid password length</string>
+    <string name="passwords_don_t_match">Passwords don\'t match</string>
+    <string name="passwords_match">Passwords match</string>
+    <string name="eula">EULA</string>
+    <string name="privacy_policy">Privacy Policy</string>
 </resources>
