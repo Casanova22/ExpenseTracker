@@ -21,7 +21,8 @@
         android:gravity="center"
         android:text="@string/loginPage_text"
         android:textColor="@color/text_color_secondary"
-        android:textSize="50sp" />
+        android:textSize="50sp"
+    />
 
     <LinearLayout
         android:id="@+id/logInCont"
@@ -49,7 +50,7 @@
             app:hintTextColor="@color/text_color_secondary">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/logInUserName"
+                android:id="@+id/etLogInUserName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Username"
@@ -59,7 +60,6 @@
                 android:lines="1"
                 android:textColorHint="@color/text_color_secondary"
                 app:hintTextColor="@color/text_color_secondary"
-
             />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,7 +81,7 @@
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/logInPassword"
+                android:id="@+id/etLogInPassword"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Password"
@@ -93,7 +93,7 @@
                 app:passwordToggleEnabled="true"
                 app:hintTextColor="@color/text_color_secondary"
                 android:password="true"
-                />
+            />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -129,16 +129,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/varela_round"
-            android:text="Don't have an account yet? "/>
+            android:text="Don't have an account yet? "
+        />
 
         <TextView
-            android:id="@+id/signUpBtn"
+            android:id="@+id/signUpTextBtn"
             android:textColor="@color/text_color_secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/varela_round"
-            android:text="Sign Up"/>
-
+            android:text="Sign Up"
+        />
     </LinearLayout>
 
 </RelativeLayout>

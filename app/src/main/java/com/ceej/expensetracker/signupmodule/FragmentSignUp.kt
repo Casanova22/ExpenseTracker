@@ -2,7 +2,7 @@ package com.ceej.expensetracker.signupmodule
 
 import android.animation.ObjectAnimator
 import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -22,16 +22,17 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.ceej.expensetracker.R
 import com.ceej.expensetracker.databinding.FragmentSignupBinding
 import com.ceej.expensetracker.utils.isConnectionAvailable
-import com.ceej.expensetracker.signupmodule.FieldValidators.isValidEmail
+import com.ceej.expensetracker.utils.ValidationUtils
+import com.ceej.expensetracker.utils.ValidationUtils.validateConfirmPassword
+import com.ceej.expensetracker.utils.ValidationUtils.validateEmail
+import com.ceej.expensetracker.utils.ValidationUtils.validateUserName
 import com.ceej.expensetracker.viewmodel.SignInViewModel
-import com.google.android.material.textfield.TextInputLayout
 
 
 class FragmentSignUp : Fragment() {
@@ -50,32 +51,34 @@ class FragmentSignUp : Fragment() {
         _signUpBinding = FragmentSignupBinding.inflate(inflater, container, false)
         appViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
 
+
+        checkInternetConnection()
+        observeViewModel()
         setUpListeners()
-        if (!requireContext().isConnectionAvailable()) {
-            Toast.makeText(requireContext(),
-                getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
-        }
         setClickableText(signUpBinding.eulaPrivacy)
         return signUpBinding.root
     }
 
-    private fun saveUserDataToFireStore(username: String, email: String, password: String) {
-        appViewModel.saveUserDataToFireStore(
-            username,
-            email,
-            password
-        )
+    private fun checkInternetConnection() {
+        if (!requireContext().isConnectionAvailable()) {
+            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+        }
+    }
 
-        appViewModel.fireStoreResult.observe(viewLifecycleOwner) { result ->
+    private fun saveUserDataToFireStore(username: String, email: String, password: String) {
+        signUpBinding.progressBar.visibility = View.VISIBLE
+        appViewModel.saveUserDataToFireStore(username, email, password)
+    }
+
+    private fun observeViewModel() {
+        appViewModel.fireStoreResult.observe(viewLifecycleOwner) { result  ->
+            signUpBinding.progressBar.visibility = View.GONE
             when (result) {
                 is SignInViewModel.FireStoreResult.Success -> {
-                    val documentId = result.documentId
                     Toast.makeText(requireContext(), "User data saved successfully!", Toast.LENGTH_SHORT).show()
                 }
                 is SignInViewModel.FireStoreResult.Failure -> {
-
-                    val error = result.error
-                    Toast.makeText(requireContext(), "Firestore Error: $error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Firestore Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -83,150 +86,128 @@ class FragmentSignUp : Fragment() {
 
     private fun setUpListeners() {
         with(signUpBinding) {
-            etUserName.addTextChangedListener(TextFieldValidation(etUserName))
-            etEmail.addTextChangedListener(TextFieldValidation(etEmail))
-            etPassword.addTextChangedListener(TextFieldValidation(etPassword))
-            etpassConfirm.addTextChangedListener(TextFieldValidation(etpassConfirm))
+            etUserName.addTextChangedListener(TextFieldValidation(::validateUserName))
+            etEmail.addTextChangedListener(TextFieldValidation(::validateEmail))
+            etPassword.addTextChangedListener(TextFieldValidation(::validatePassword))
+            etpassConfirm.addTextChangedListener(TextFieldValidation(::validateConfirmPassword))
 
             buttonConfirmSignup.setOnClickListener {
-                val username = etUserName.text.toString()
-                val email = etEmail.text.toString()
-                val password = etPassword.text.toString()
-
-                if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                if (validateUserName() && validateEmail() && validatePassword() && validateConfirmPassword()) {
+                    val username = etUserName.text.toString().trim()
+                    val email = etEmail.text.toString().trim()
+                    val password = etPassword.text.toString().trim()
                     saveUserDataToFireStore(username, email, password)
-                    signUpBinding.buttonConfirmSignup.findNavController().navigate(R.id.action_fragmentSignup_to_fragmentLogin)
-                    Toast.makeText(requireContext(),
-                        getString(R.string.sign_up_successful), Toast.LENGTH_SHORT).show()
+                    it.findNavController().navigate(R.id.action_fragmentSignup_to_fragmentLogin)
+                    Toast.makeText(requireContext(), getString(R.string.sign_up_successful), Toast.LENGTH_SHORT).show()
                 } else {
-                    horizontalShake(buttonConfirmSignup, 20F)
-                    Toast.makeText(requireContext(),
-                        getString(R.string.please_fill_all_fields), Toast.LENGTH_SHORT).show()
+                    horizontalShake(it, SHAKE_DISTANCE)
+                    Toast.makeText(requireContext(), getString(R.string.please_fill_all_fields), Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    private fun validateUserName(): Boolean = validateField(
-        signUpBinding.userNameCont,
-        signUpBinding.etUserName.text.toString(),
-        { it.length in 8..10 },
-        getString(R.string.invalid_username_length),
-        getString(R.string.valid_username)
-    )
-
-    private fun validateEmail(): Boolean = validateField(
-        signUpBinding.emailCont,
-        signUpBinding.etEmail.text.toString(),
-        ::isValidEmail,
-        getString(R.string.invalid_email),
-        getString(R.string.valid_email)
-    )
-
-    private fun validatePasswordLength(): Boolean {
-        val password = signUpBinding.etPassword.text.toString()
-        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
-        val colorError = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
-        val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
-        val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
-        val check: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
-        val error: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
-
-        return if (password.isEmpty() || password.length <= 10) {
-            setErrorState(signUpBinding.passwordCont,
-                getString(R.string.password_is_weak), colorWeak, error)
-            signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
-            false
-        } else {
-            setValidState(signUpBinding.passwordCont,
-                getString(R.string.valid_password_length), colorError, check)
-            signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(ColorStateList.valueOf(colorStrong))
-            true
-        }
-    }
-
-    private fun validatePasswordTextview(): Boolean {
-        val password = signUpBinding.etPassword.text.toString()
-        val colorStrong = ContextCompat.getColor(requireContext(), R.color.strong_password)
-        val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
-
-
-        val uppercaseCharRegex = "[A-Z]".toRegex()
-        val numericRegex = "[0-9]".toRegex()
-        val specialCharRegex = "[!.@#\\\$%^&*()_+{}\\|:\"<>?]".toRegex()
-
-        val isValid = password.contains(uppercaseCharRegex) &&
-                password.contains(numericRegex) &&
-                password.contains(specialCharRegex)
-
-
-        setValidationState(signUpBinding.pwValidator.passwordUppercase, password.contains(uppercaseCharRegex), colorStrong, colorNoState)
-        setValidationState(signUpBinding.pwValidator.passwordNumerical, password.contains(numericRegex), colorStrong, colorNoState)
-        setValidationState(signUpBinding.pwValidator.passwordSpecial, password.contains(specialCharRegex), colorStrong, colorNoState)
-
-        return isValid
-    }
-
-    private fun validateConfirmPassword(): Boolean = validateField(
-        signUpBinding.confirmPassCont,
-        signUpBinding.etpassConfirm.text.toString(),
-        { it == signUpBinding.etPassword.text.toString() },
-        getString(R.string.passwords_don_t_match),
-        getString(R.string.passwords_match)
-    )
-
-    private fun validateField(field: TextInputLayout, value: String, validator: (String) -> Boolean, errorMessage: String, validMessage: String): Boolean {
-        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
+    //-------------Field Validations-------------//
+    private fun validateUserName(): Boolean {
+        val username = signUpBinding.etUserName.text.toString().trim()
+        val validUsername = validateUserName(username)
         val colorStrong = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
-        val check: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.baseline_check_circle_24, requireContext().theme)
-        val error: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable.error, requireContext().theme)
-
-        return if (!validator(value)) {
-            setErrorState(field, errorMessage, colorWeak, error)
+        val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
+        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
+        return if (username.isEmpty()) {
+            signUpBinding.userNameCont.error = null
+            signUpBinding.pwValidator.validUsername.setCardBackgroundColor(ColorStateList.valueOf(colorNoState))
+            false
+        } else if (!validateUserName(username)) {
+            signUpBinding.userNameCont.error = getString(R.string.invalid_username_length)
             false
         } else {
-            setValidState(field, validMessage, colorStrong, check)
+            signUpBinding.userNameCont.error = null
+            signUpBinding.pwValidator.validUsername.setCardBackgroundColor(
+                ColorStateList.valueOf(if (validUsername) colorStrong else colorWeak)
+            )
             true
         }
     }
 
-    private fun setErrorState(textInputLayout: TextInputLayout, errorMessage: String, color: Int, errorIcon: Drawable?) {
-        textInputLayout.error = errorMessage
-        textInputLayout.setErrorIconTintList(ColorStateList.valueOf(color))
-        textInputLayout.errorIconDrawable = errorIcon
-        textInputLayout.setErrorTextColor(ColorStateList.valueOf(color))
-        textInputLayout.boxStrokeErrorColor = ColorStateList.valueOf(color)
-        textInputLayout.requestFocus()
+    private fun validateEmail() : Boolean {
+        val email = signUpBinding.etEmail.text.toString()
+        return if (email.isEmpty()) {
+            signUpBinding.emailCont.error = null
+            false
+        } else if (!validateEmail(email)) {
+            signUpBinding.emailCont.error = getString(R.string.invalid_email)
+            false
+        } else {
+            signUpBinding.emailCont.error = null
+            true
+        }
     }
 
-    private fun setValidState(textInputLayout: TextInputLayout, validMessage: String, color: Int, checkIcon: Drawable?) {
-        textInputLayout.error = validMessage
-        textInputLayout.setErrorIconTintList(ColorStateList.valueOf(color))
-        textInputLayout.errorIconDrawable = checkIcon
-        textInputLayout.setErrorTextColor(ColorStateList.valueOf(color))
-        textInputLayout.boxStrokeErrorColor = ColorStateList.valueOf(color)
+    private fun validatePassword() : Boolean {
+        val password = signUpBinding.etPassword.text.toString()
+        val isValidLength = ValidationUtils.passwordLength(password)
+        val isValidRegex = ValidationUtils.validatePasswordRegex(password)
+        val colorStrong = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+        val colorWeak = ContextCompat.getColor(requireContext(), R.color.weak_password)
+        val colorNoState = ContextCompat.getColor(requireContext(), R.color.no_state)
+
+        if (password.isEmpty()) {
+            signUpBinding.passwordCont.error = null
+            return false
+        } else {
+            signUpBinding.passwordCont.error = if (!isValidLength) {
+                getString(R.string.password_is_weak)
+            } else {
+                null
+            }
+            signUpBinding.pwValidator.passwordLength.setCardBackgroundColor(
+                ColorStateList.valueOf(if (isValidLength) colorStrong else colorWeak)
+            )
+        }
+
+        val validations = listOf(
+            Pair(password.contains("[A-Z]".toRegex()), signUpBinding.pwValidator.passwordUppercase),
+            Pair(password.contains("[0-9]".toRegex()), signUpBinding.pwValidator.passwordNumerical),
+            Pair(password.contains("[!.@#\$%^&*()_+{}\\|:\"<>?]".toRegex()), signUpBinding.pwValidator.passwordSpecial)
+        )
+
+        validations.forEach {
+            setValidationState(it.second, it.first, colorStrong, colorNoState)
+        }
+        return isValidLength && isValidRegex
+    }
+
+    private fun validateConfirmPassword() : Boolean {
+        val password = signUpBinding.etPassword.text.toString()
+        val confirmPassword = signUpBinding.etpassConfirm.text.toString()
+        return if (confirmPassword.isEmpty()) {
+            signUpBinding.confirmPassCont.error = null
+            false
+        } else if (!validateConfirmPassword(password, confirmPassword)) {
+            signUpBinding.confirmPassCont.error = getString(R.string.passwords_don_t_match)
+            false
+        } else {
+            signUpBinding.confirmPassCont.error = null
+            true
+        }
     }
 
     private fun setValidationState(view: CardView, isValid: Boolean, validColor: Int, noStateColor: Int) {
+
+
         view.setCardBackgroundColor(ColorStateList.valueOf(if (isValid) validColor else noStateColor))
     }
 
-    inner class TextFieldValidation(private val view: View) : TextWatcher {
+    inner class TextFieldValidation(private val validator: () -> Boolean) : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun afterTextChanged(s: Editable?) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            when (view.id) {
-                R.id.etUserName -> validateUserName()
-                R.id.etEmail -> validateEmail()
-                R.id.etPassword -> {
-                    validatePasswordLength()
-                    validatePasswordTextview()
-                }
-                R.id.etpassConfirm -> validateConfirmPassword()
-            }
+            validator()
         }
     }
 
+    //------------PRIVACY POLICY & EULA CLICK LOGIC-------------------//
     private fun setClickableText(textView: TextView) {
         val eulaText = getString(R.string.eula_privacy)
         val spannableString = SpannableString(eulaText)
@@ -240,6 +221,7 @@ class FragmentSignUp : Fragment() {
                 super.updateDrawState(ds)
                 ds.isUnderlineText = false
                 ds.color = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+                ds.bgColor = Color.TRANSPARENT
             }
         }
 
@@ -252,19 +234,15 @@ class FragmentSignUp : Fragment() {
                 super.updateDrawState(ds)
                 ds.isUnderlineText = false
                 ds.color = ContextCompat.getColor(requireContext(), R.color.text_color_secondary)
+                ds.bgColor = Color.TRANSPARENT
             }
         }
 
-        val eulaStart = eulaText.indexOf(getString(R.string.eula))
-        val eulaEnd = eulaStart + getString(R.string.eula).length
-
-        val privacyStart = eulaText.indexOf(getString(R.string.privacy_policy))
-        val privacyEnd = privacyStart + getString(R.string.privacy_policy).length
-
-        spannableString.setSpan(eulaClickableSpan, eulaStart, eulaEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spannableString.setSpan(privacyClickableSpan, privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannableString.setSpan(eulaClickableSpan, eulaText.indexOf(getString(R.string.eula)), eulaText.indexOf(getString(R.string.eula)) + getString(R.string.eula).length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannableString.setSpan(privacyClickableSpan, eulaText.indexOf(getString(R.string.privacy_policy)), eulaText.indexOf(getString(R.string.privacy_policy)) + getString(R.string.privacy_policy).length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         textView.text = spannableString
+        textView.highlightColor = Color.TRANSPARENT
         textView.movementMethod = LinkMovementMethod.getInstance()
     }
 
@@ -282,18 +260,23 @@ class FragmentSignUp : Fragment() {
     }
 
     private fun horizontalShake(view: View, shakeDistance: Float) {
-        val animator = ObjectAnimator.ofFloat(view, "translationX", 0f, shakeDistance, -shakeDistance, 0f)
-        animator.duration = 300
-        animator.start()
+        ObjectAnimator.ofFloat(view, "translationX", 0f, shakeDistance, -shakeDistance, 0f).apply {
+            duration = 300
+            start()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        signUpBinding.buttonConfirmSignup.setOnClickListener(null)
         _signUpBinding = null
+        appViewModel.fireStoreResult.removeObservers(viewLifecycleOwner)
     }
 
     companion object {
         private const val TAG = "FragmentSignUp"
+        private const val PASSWORD_MIN_LENGTH = 10
+        private const val USERNAME_MIN_LENGTH = 8
+        private const val USERNAME_MAX_LENGTH = 10
+        private const val SHAKE_DISTANCE = 20F
     }
 }

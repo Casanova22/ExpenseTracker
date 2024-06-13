@@ -6,6 +6,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/app_bg">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+
+        />
+
     <LinearLayout
         android:id="@+id/signUpCont"
         android:layout_width="match_parent"
@@ -28,7 +37,6 @@
             app:boxCornerRadiusTopEnd="20dp"
             app:boxCornerRadiusTopStart="20dp"
             app:errorEnabled="true"
-            app:errorTextColor="@color/holo_required"
             app:hintTextColor="@color/text_color_secondary">
 
             <com.google.android.material.textfield.TextInputEditText

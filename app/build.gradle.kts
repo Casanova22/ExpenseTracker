@@ -39,12 +39,12 @@ android {
 }
 
 dependencies {
-    //B O T T O M  N A V I G A T I O N  L I B R A R Y
-    implementation("nl.joery.animatedbottombar:library:1.1.0")
+
 
     //N A V I G A T I O N / F R A G M E N T
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
+
     //F I R E B A S E  I N T E G R A T I O N
     implementation("com.google.firebase:firebase-auth:22.3.0")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
@@ -56,6 +56,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 }

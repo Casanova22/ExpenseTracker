@@ -21,6 +21,38 @@
             android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/validUsername"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:cardBackgroundColor="#dcdcdc"
+                android:layout_marginStart="10dp"
+                app:cardCornerRadius="25dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/baseline_check_circle_outline_24"
+                    />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Valid Username"
+                android:fontFamily="@font/varela_round"
+                android:gravity="center|start"
+                android:layout_marginStart="10dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/passwordLength"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -39,12 +71,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Atleast 10 characters"
+                android:text="Password should be 10 or more characters"
                 android:fontFamily="@font/varela_round"
                 android:gravity="center|start"
                 android:layout_marginStart="10dp"
             />
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"

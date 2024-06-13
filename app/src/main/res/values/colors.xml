@@ -7,9 +7,9 @@
     <color name="text_color_secondary">#467E7A</color>
 
     <color name="weak_password">#B00020</color>
-    <color name="medium_password">#FFBE0B</color>
-    <color name="strong_password">#63A91F</color>
-    <color name="no_state">#DCDCDC</color>
+    <color name="no_state">#CCCCCC</color>
+    <color name="medium_passowrd">#888888</color>
+    <color name="strong_password">#00FF00</color>
 
     <color name="holo_required">#FF0000</color>
 
