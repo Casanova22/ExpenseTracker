@@ -32,44 +32,49 @@ class SignInViewModel : ViewModel() {
 
         _state.value = MainState.ShowLoader
 
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener {
-                _fireStoreResult.value = FireStoreResult.Success
-                _state.value = MainState.HideLoader
-                _state.value = MainState.Success
-                Log.e(TAG,"Success")
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                db.collection("users").add(user).await()
+                _fireStoreResult.postValue(FireStoreResult.Success)
+                _state.postValue(MainState.HideLoader)
+                _state.postValue(MainState.Success)
+                Log.e(TAG, "Success")
+            } catch (e: Exception) {
+                _fireStoreResult.postValue(FireStoreResult.Failure(e.message ?: "UnkownError"))
+                _state.postValue(MainState.HideLoader)
+                _state.postValue(MainState.ShowError(e.message ?: "Unknown Error"))
+                Log.e(TAG, "Failed")
             }
-            .addOnFailureListener { e ->
-                _fireStoreResult.value = FireStoreResult.Failure(e.message ?: "Unknown error")
-                _state.value = MainState.HideLoader
-                _state.value = MainState.ShowError(e.message ?: "Unknown error")
-                Log.e(TAG,"Fail")
-            }
+        }
     }
 
     fun login(username: String, password: String) {
         val db = FirebaseFirestore.getInstance()
         _state.value = MainState.ShowLoader
 
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .whereEqualTo("password", password)
-            .get().addOnSuccessListener { document ->
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val document = db.collection("users")
+                    .whereEqualTo("username", username)
+                    .whereEqualTo("password", password)
+                    .get()
+                    .await()
+
                 if (document.isEmpty) {
-                    _fireStoreResult.value = FireStoreResult.Failure("Invalid login credentials")
-                    _state.value = MainState.ShowLoader
+                    _fireStoreResult.postValue(FireStoreResult.Failure("Invalid login credentials"))
+                    _state.postValue(MainState.ShowLoader)
                 } else {
-                    _fireStoreResult.value = FireStoreResult.Success
-                    _state.value = MainState.HideLoader
-                    _state.value = MainState.Success
+                    _fireStoreResult.postValue(FireStoreResult.Success)
+                    _state.postValue(MainState.HideLoader)
+                    _state.postValue(MainState.Success)
                 }
+            } catch (e: Exception) {
+                _fireStoreResult.postValue(FireStoreResult.Failure(e.message ?: "Unknown Error"))
+                _state.postValue(MainState.HideLoader)
+                _state.postValue(MainState.ShowError(e.message ?: "Unknown Error"))
+
             }
-            .addOnFailureListener {e ->
-                _fireStoreResult.value = FireStoreResult.Failure(e.message ?: " Unknown Error")
-                _state.value = MainState.HideLoader
-                _state.value = MainState.ShowError(e.message ?: "Unknown Error")
-            }
+        }
     }
 
     sealed class FireStoreResult {
